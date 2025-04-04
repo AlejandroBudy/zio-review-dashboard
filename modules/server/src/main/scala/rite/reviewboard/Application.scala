@@ -2,6 +2,7 @@ package rite.reviewboard
 
 import rite.reviewboard.http.controllers.*
 import rite.reviewboard.http.Http
+import rite.reviewboard.services.CompanyService
 import sttp.tapir.*
 import sttp.tapir.server.ziohttp.*
 import zio.*
@@ -21,5 +22,6 @@ object Application extends ZIOAppDefault:
     yield ()
 
   override def run = serverProgram.provide(
-    Server.default
+    Server.default,
+    CompanyService.layer
   )
