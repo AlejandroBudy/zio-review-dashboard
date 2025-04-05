@@ -1,8 +1,11 @@
 package rite.reviewboard
 
+import io.getquill.*
+import io.getquill.jdbczio.Quill
 import rite.reviewboard.http.controllers.*
 import rite.reviewboard.http.Http
-import rite.reviewboard.services.CompanyService
+import rite.reviewboard.repositories.CompanyRepositoryLive
+import rite.reviewboard.services.*
 import sttp.tapir.*
 import sttp.tapir.server.ziohttp.*
 import zio.*
@@ -23,5 +26,8 @@ object Application extends ZIOAppDefault:
 
   override def run = serverProgram.provide(
     Server.default,
-    CompanyService.layer
+    CompanyServiceLive.layer,
+    CompanyRepositoryLive.layer,
+    Quill.Postgres.fromNamingStrategy(SnakeCase),
+    Quill.DataSource.fromPrefix("db") // Assuming you have a Quill Postgres context configured
   )

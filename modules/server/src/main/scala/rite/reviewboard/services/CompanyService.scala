@@ -2,6 +2,7 @@ package rite.reviewboard.services
 
 import rite.reviewboard.domain.Company
 import rite.reviewboard.http.requests.CreateCompanyRequest
+import rite.reviewboard.repositories.CompanyRepository
 import zio.*
 
 trait CompanyService:
@@ -10,24 +11,16 @@ trait CompanyService:
   def getById(id: Long): Task[Option[Company]]
   def getBySlug(slug: String): Task[Option[Company]]
 
-import scala.collection.mutable
+final class CompanyServiceLive private (repo: CompanyRepository) extends CompanyService:
 
-final class CompanyServiceInMemory extends CompanyService:
-  val db = mutable.Map[Long, Company]()
+  def create(request: CreateCompanyRequest): Task[Company] = repo.create(request.toCompany(1L))
+  def getAll(): Task[List[Company]]                        = repo.get
+  def getById(id: Long): Task[Option[Company]]             = repo.getById(id)
+  def getBySlug(slug: String): Task[Option[Company]]       = repo.getBySlug(slug)
 
-  override def create(request: CreateCompanyRequest): Task[Company] =
-    ZIO.succeed {
-      val id         = db.keys.maxOption.getOrElse(0L) + 1
-      val newCompany = request.toCompany(id)
-      db += (id -> newCompany)
-      newCompany
-    }
-
-  override def getAll(): Task[List[Company]]            = ZIO.succeed(db.values.toList)
-  override def getById(id: Long): Task[Option[Company]] = ZIO.succeed(db.get(id))
-
-  override def getBySlug(slug: String): Task[Option[Company]] =
-    ZIO.succeed(db.values.find(_.slug == slug))
-
-object CompanyService:
-  val layer = ZLayer.succeed(new CompanyServiceInMemory)
+object CompanyServiceLive:
+  val layer = ZLayer {
+    ZIO
+      .service[CompanyRepository]
+      .map(new CompanyServiceLive(_))
+  }
