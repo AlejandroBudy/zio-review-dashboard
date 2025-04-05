@@ -1,10 +1,9 @@
 package rite.reviewboard
 
-import io.getquill.*
-import io.getquill.jdbczio.Quill
 import rite.reviewboard.http.controllers.*
 import rite.reviewboard.http.Http
 import rite.reviewboard.repositories.CompanyRepositoryLive
+import rite.reviewboard.repositories.Repository
 import rite.reviewboard.services.*
 import sttp.tapir.*
 import sttp.tapir.server.ziohttp.*
@@ -28,6 +27,5 @@ object Application extends ZIOAppDefault:
     Server.default,
     CompanyServiceLive.layer,
     CompanyRepositoryLive.layer,
-    Quill.Postgres.fromNamingStrategy(SnakeCase),
-    Quill.DataSource.fromPrefix("db") // Assuming you have a Quill Postgres context configured
+    Repository.layer
   )
