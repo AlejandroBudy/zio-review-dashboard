@@ -1,6 +1,3 @@
-CREATE DATABASE reviewboard;
-\c reviewboard;
-
 CREATE TABLE IF NOT EXISTS companies
 (
     id       BIGSERIAL PRIMARY KEY,
@@ -13,4 +10,3 @@ CREATE TABLE IF NOT EXISTS companies
     image    TEXT,
     tags     TEXT[]
 );
-
